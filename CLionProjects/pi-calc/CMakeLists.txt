@@ -16,3 +16,16 @@ target_link_libraries(TestLongNumber LongNumber)
 add_executable(pi_calc src/main.cpp)
 target_link_libraries(pi_calc PiCalculate)
 include_directories(src/PiCalculator)
+
+#add_executable(tests tests.cpp)
+#target_link_libraries(tests LongNumber)
+
+#enable_testing()
+#add_test(NAME run_tests COMMAND tests)
+
+#add_custom_target(run_all
+#        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target all
+#        COMMAND ${CMAKE_BINARY_DIR}/tests
+#        COMMAND ${CMAKE_BINARY_DIR}/pi_calculator
+#        COMMENT "Running all actions"
+#)
