@@ -8,7 +8,7 @@
 class LongNumber {
     std::string integer; // int part
     std::string decimal; // decimal part
-    bool negative;  // is negative
+    bool negative = false;  // is negative
 
 
 public:

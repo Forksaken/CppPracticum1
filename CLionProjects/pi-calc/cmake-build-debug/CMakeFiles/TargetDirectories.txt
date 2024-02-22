@@ -1,0 +1,6 @@
+/home/forksaken/CLionProjects/pi-calc/cmake-build-debug/CMakeFiles/LongNumber.dir
+/home/forksaken/CLionProjects/pi-calc/cmake-build-debug/CMakeFiles/PiCalculate.dir
+/home/forksaken/CLionProjects/pi-calc/cmake-build-debug/CMakeFiles/TestLongNumber.dir
+/home/forksaken/CLionProjects/pi-calc/cmake-build-debug/CMakeFiles/pi_calc.dir
+/home/forksaken/CLionProjects/pi-calc/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/forksaken/CLionProjects/pi-calc/cmake-build-debug/CMakeFiles/rebuild_cache.dir

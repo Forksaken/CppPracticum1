@@ -56,7 +56,7 @@ LongNumber::LongNumber(const std::string& number_str) {
 // constructor from long double
 LongNumber::LongNumber(long double value) {
     std::stringstream ss;
-    ss << std::fixed << value; // no precision (default stringstream size)
+    ss << std::fixed << std::setprecision(15) << value; //with precision
     std::string number_str = ss.str();
     // is negative?
     if (number_str.front() == '-') {
@@ -115,75 +115,61 @@ LongNumber& LongNumber::operator=(const LongNumber& rhs) {
     return *this;
 }
 
-// assignment addition operator
-LongNumber& LongNumber::operator+=(const LongNumber& rhs) {
-    // one of the numbers is negative => convert both to positive
-    bool resultNegative = negative;
-    if (negative || rhs.negative) {
-        LongNumber temp = *this;
-        temp.negative = false;
-        LongNumber rhsTemp = rhs;
-        rhsTemp.negative = false;
-        if (temp < rhsTemp) {
-            *this = rhs;
-            *this -= temp;
-            negative = resultNegative;
-            return *this;
-        }
-    }
-
-    // decimal addition operation
+// helper function for string addition
+std::string addStrings(const std::string& num1, const std::string& num2) {
     int carry = 0;
-    int maxDecimalLength = std::max(decimal.length(), rhs.decimal.length());
-    for (int i = 0; i < maxDecimalLength; ++i) {
+    int i = num1.size() - 1;
+    int j = num2.size() - 1;
+    std::string result;
+
+    while (i >= 0 || j >= 0 || carry > 0) {
         int digitSum = carry;
-        if (i < decimal.length()) {
-            digitSum += decimal[decimal.length() - 1 - i] - '0';
+        if (i >= 0) {
+            digitSum += num1[i] - '0';
+            i--;
         }
-        if (i < rhs.decimal.length()) {
-            digitSum += rhs.decimal[rhs.decimal.length() - 1 - i] - '0';
+        if (j >= 0) {
+            digitSum += num2[j] - '0';
+            j--;
         }
         carry = digitSum / 10;
         digitSum %= 10;
-        if (i >= decimal.length()) {
-            decimal.insert(0, 1, '0');
-        }
-        decimal[decimal.length() - 1 - i] = digitSum + '0';
+        result.insert(result.begin(), digitSum + '0');
     }
+    return result;
+}
 
-    // carry if necessary
-    if (carry > 0) {
-        if (maxDecimalLength >= decimal.length()) {
-            decimal.insert(0, 1, '0');
+// assignment addition operator
+LongNumber& LongNumber::operator+=(const LongNumber& rhs) {
+
+    LongNumber temp = rhs;
+    if (negative != rhs.negative) {
+        if (rhs.negative) {
+            temp.negative = false;
+            *this -= temp;
+            return *this;
+        } else {
+            negative = false;
+            *this -= temp;
+            negative = true;
+            return *this;
         }
-        decimal[0] = carry + '0';
     }
-
-    // add the integer parts
-    int intCarry = 0;
-    for (int i = integer.length() - 1, j = rhs.integer.length() - 1; i >= 0 || j >= 0 || intCarry > 0; --i, --j) {
-        int digitSum = intCarry;
-        if (i >= 0) {
-            digitSum += integer[i] - '0';
-        }
-        if (j >= 0) {
-            digitSum += rhs.integer[j] - '0';
-        }
-        intCarry = digitSum / 10;
-        digitSum %= 10;
-        if (i < 0) {
-            integer.insert(0, 1, '0');
-        }
-        integer[i] = digitSum + '0';
+    while (decimal.length() < temp.decimal.length()) {
+        decimal.push_back('0');
     }
-
-    // adjust the sign of the result
-    negative = resultNegative;
-
+    while (decimal.length() > temp.decimal.length()) {
+        temp.decimal.push_back('0');
+    }
+    std::string sum = addStrings(integer + decimal, temp.integer + temp.decimal);
+    integer = sum.substr(0, sum.length() - temp.decimal.length());
+    decimal = sum.substr(sum.length() - temp.decimal.length(), temp.decimal.length());
+    // Remove trailing && leading zeros
+    integer.erase(0, std::min(integer.find_first_not_of('0'), integer.size() - 1));
+    removeTrailingZeros(decimal);
     return *this;
 }
 
-// assignment subtraction operator
 LongNumber& LongNumber::operator-=(const LongNumber& rhs) {
     bool resultNegative = negative || (*this < rhs);
 
@@ -244,6 +230,8 @@ LongNumber& LongNumber::operator-=(const LongNumber& rhs) {
     return *this;
 }
 
+
+
 // helper function for string multiplication
 std::string multiplyStrings(const std::string& num1, const std::string& num2) {
     int m = num1.size();
@@ -255,7 +243,7 @@ std::string multiplyStrings(const std::string& num1, const std::string& num2) {
             int mul = (num1[i] - '0') * (num2[j] - '0');
             int sum = mul + result[i + j + 1];
             result[i + j + 1] = sum % 10; // update position
-            result[i + j] += sum / 10;    // carry to next
+            result[i + j] += sum / 10;    // carry to borrow
         }
     }
 
@@ -282,11 +270,7 @@ LongNumber& LongNumber::operator*=(const LongNumber& rhs) {
 
 //helper function to compare number strings
 bool strnumcmp(std::string a, std::string b) {
-    if (a.length() != b.length()) {
-        return a.length() < b.length();
-    }
-
-    for (int i = 0; i < a.length(); ++i) {
+    for (int i = 0; i < std::min(a.length(), b.length()); ++i) {
         if (a[i] < b[i]) {
             return true;
         } else if (a[i] > b[i]) {
@@ -297,7 +281,7 @@ bool strnumcmp(std::string a, std::string b) {
     return false;
 }
 
-// assignment division operator
+// assignment division operator // not working somehow because of the operator <
 LongNumber& LongNumber::operator/=(const LongNumber& rhs) {
     // ensure rhs is not zero
     if (rhs == LongNumber(0)) {
@@ -409,7 +393,6 @@ bool operator<(const LongNumber& lhs, const LongNumber& rhs) {
     if (lhs.negative != rhs.negative) {
         return lhs.negative;
     }
-
     // Compare integer parts
     if (lhs.integer != rhs.integer) {
         return lhs.negative ? strnumcmp(rhs.integer, lhs.integer) : strnumcmp(lhs.integer, rhs.integer);
