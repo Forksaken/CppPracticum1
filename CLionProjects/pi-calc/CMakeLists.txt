@@ -23,9 +23,9 @@ include_directories(src/PiCalculator)
 #enable_testing()
 #add_test(NAME run_tests COMMAND tests)
 
-#add_custom_target(run_all
-#        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target all
+add_custom_target(run_all
+        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target all
 #        COMMAND ${CMAKE_BINARY_DIR}/tests
-#        COMMAND ${CMAKE_BINARY_DIR}/pi_calculator
-#        COMMENT "Running all actions"
-#)
+        COMMAND ${CMAKE_BINARY_DIR}/pi_calculator
+        COMMENT "Running all actions"
+)
