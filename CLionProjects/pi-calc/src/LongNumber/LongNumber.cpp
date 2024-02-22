@@ -1,5 +1,6 @@
 #include "LongNumber.h"
 #include <cmath>
+#include <ctype.h>
 #include <sstream>
 #include <iomanip>
 #include <iostream>
@@ -270,10 +271,10 @@ LongNumber& LongNumber::operator*=(const LongNumber& rhs) {
 
 //helper function to compare number strings
 bool strnumcmp(std::string a, std::string b) {
-    for (int i = 0; i < std::min(a.length(), b.length()); ++i) {
-        if (a[i] < b[i]) {
+    for (int i = 0; i < std::min(a.length(), b.length()) - 1; ++i) {
+        if (a[i] < b[i] && isdigit(a[i]) && isdigit(b[i])) {
             return true;
-        } else if (a[i] > b[i]) {
+        } else if (a[i] > b[i] && isdigit(a[i]) && isdigit(b[i])) {
             return false;
         }
     }
@@ -308,7 +309,7 @@ LongNumber& LongNumber::operator/=(const LongNumber& rhs) {
     // Perform long division
     while (!(remainder < divisor)) {
         int digit = 0;
-        while (!(remainder < (LongNumber(divisor) * (digit + 1)))) {
+        while (!(remainder < (LongNumber(divisor) * LongNumber(digit + 1)))) {
             digit++;
         }
         quotient.integer += std::to_string(digit);
@@ -335,7 +336,7 @@ LongNumber& LongNumber::operator/=(const LongNumber& rhs) {
             remainder.integer.erase(0, std::min(remainder.integer.find_first_not_of('0'), remainder.integer.size() - 1));
 
             int digit = 0;
-            while (!(strnumcmp(remainder.integer, divisor))) {
+            while (!(LongNumber(remainder.integer) < LongNumber(divisor))) {
                 digit++;
                 remainder -= divisor;
             }
@@ -390,16 +391,31 @@ bool operator!=(const LongNumber& lhs, const LongNumber& rhs) {
 //less than
 bool operator<(const LongNumber& lhs, const LongNumber& rhs) {
     // Compare signs
+    int percision = 50;
     if (lhs.negative != rhs.negative) {
         return lhs.negative;
     }
     // Compare integer parts
-    if (lhs.integer != rhs.integer) {
-        return lhs.negative ? strnumcmp(rhs.integer, lhs.integer) : strnumcmp(lhs.integer, rhs.integer);
+    if (lhs.integer.length() != rhs.integer.length()) {
+        return (lhs.integer.length() < rhs.integer.length());
+    }
+    int i = 0;
+    while (lhs.integer[i] == rhs.integer[i] && i != lhs.integer.length() && i <= percision) {
+        ++i;
+    }
+    if (i != lhs.integer.length()) {
+        return lhs.integer[i] < rhs.integer[i];
     }
 
     // Compare decimal parts
-    return strnumcmp(lhs.decimal, rhs.decimal);
+    i = 0;
+    while (lhs.decimal[i] == rhs.decimal[i] && i != lhs.decimal.length() && i != rhs.decimal.length() && i <= percision) {
+        ++i;
+    }
+    if (i != lhs.decimal.length() && i != rhs.decimal.length()) {
+        return lhs.decimal[i] < rhs.decimal[i];
+    }
+    return false;
 }
 
 // greater than
