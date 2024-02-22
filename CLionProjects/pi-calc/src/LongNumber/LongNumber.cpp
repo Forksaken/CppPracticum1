@@ -57,7 +57,7 @@ LongNumber::LongNumber(const std::string& number_str) {
 // constructor from long double
 LongNumber::LongNumber(long double value) {
     std::stringstream ss;
-    ss << std::fixed << std::setprecision(15) << value; //with precision
+    ss << std::fixed << std::setprecision(20) << value; //with precision
     std::string number_str = ss.str();
     // is negative?
     if (number_str.front() == '-') {
@@ -289,7 +289,7 @@ LongNumber& LongNumber::operator/=(const LongNumber& rhs) {
         throw std::invalid_argument("Division by zero");
     }
 
-    int precision = 100;
+    int precision = 50;
 
     LongNumber remainder = *this;
     std::string divisor = rhs.integer + rhs.decimal;
