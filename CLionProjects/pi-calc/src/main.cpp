@@ -3,7 +3,7 @@
 #include "PiCalculator/PiCalculator.h"
 
 int main() {
-    /*int precision;
+    int precision;
     std::cout << "Enter the precision: ";
     std::cin >> precision;
 
@@ -16,10 +16,6 @@ int main() {
 
     std::cout << "Pi with " << precision << " digits: " << pi.toString() << std::endl;
     std::cout << "Time taken: " << elapsed.count() << " seconds" << std::endl;
-    return 0;*/
-    LongNumber x(8);
-    LongNumber y(2);
-    x /= y;
-    std::cout << x.toString() << std::endl;
+    return 0;
 
 }
